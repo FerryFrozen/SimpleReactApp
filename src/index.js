@@ -4,42 +4,36 @@ import './index.css';
 
 function Square(props) {
       return (
-        <button className="square" onClick={props.onClick}>
+        <button className={`square ${props.winner ? "active" : ""}`} onClick={props.onClick}>
           {props.value}
         </button>
       );
   }
   
   class Board extends React.Component {
+    gridSize = 3;
+
     renderSquare(i) {
       return (
             <Square
+                key={i}
                 value={this.props.squares[i]}
                 onClick={() => this.props.onClick(i)}
+                winner={this.props.winner&&this.props.winner.line.includes(i)}
             />
         );
     }
-  
+
     render() {
-      return (
-        <div>
-          <div className="board-row">
-            {this.renderSquare(0)}
-            {this.renderSquare(1)}
-            {this.renderSquare(2)}
-          </div>
-          <div className="board-row">
-            {this.renderSquare(3)}
-            {this.renderSquare(4)}
-            {this.renderSquare(5)}
-          </div>
-          <div className="board-row">
-            {this.renderSquare(6)}
-            {this.renderSquare(7)}
-            {this.renderSquare(8)}
-          </div>
-        </div>
-      );
+      let rows = [];
+      for (let i=0; i<this.gridSize; i++) {
+        let row = [];
+        for (let j=i*3; j<i*3+3; j++) {
+          row.push(this.renderSquare(j));
+        }
+        rows.push(<div key={i} className="board-row">{row}</div>);
+      }
+      return <div>{rows}</div>;
     }
   }
   
@@ -63,6 +57,9 @@ function Square(props) {
         const squares = current.squares.slice();
         if (calculateWinner(squares) || squares[i]) {
           return;
+        }
+        if (this.state.stepNumber == 8) {
+          alert("Ничья!");
         }
         squares[i] = this.state.isXNext ? 'X' : 'O';
         this.setState({
@@ -98,17 +95,17 @@ function Square(props) {
                 `Перейти к ходу #${move} ${
                   previousMove ? "["+previousMove.step.xPos+","+previousMove.step.yPos+"]" : ""
                 }` :
-                "Начало игры";
+                "Перейти к началу игры";
             return (
                 <li key={move}> 
-                    <button onClick={() => this.jumpTo(move)}>{desc}</button>
+                    <button className={move==this.state.stepNumber ? "active-list-item" : ""} onClick={() => this.jumpTo(move)}>{desc}</button>
                 </li>
             );
         });
 
         let status;
         if (winner) {
-            status = 'Выиграли ' + winner;
+            status = `Выиграли ${winner.sign=="X" ? "крестики" : "нолики"}!`;
         } else {
             status = 'Следующими ходят ' + (this.state.isXNext ? 'крестики' : 'нолики');
         }
@@ -118,6 +115,7 @@ function Square(props) {
             <Board
                 squares = {current.squares}
                 onClick = {(i) => this.handleClick(i)}
+                winner = {winner}
             />
           </div>
           <div className="game-info">
@@ -143,7 +141,11 @@ function Square(props) {
     for (let i = 0; i < lines.length; i++) {
       const [a, b, c] = lines[i];
       if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-        return squares[a];
+        console.log(squares[a]);
+        return {
+          sign: squares[a],
+          line: [a, b, c]
+        }
       }
     }
     return null;

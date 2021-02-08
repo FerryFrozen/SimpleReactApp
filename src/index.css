@@ -31,6 +31,10 @@ body {
     text-align: center;
     width: 34px;
   }
+
+  .square.active {
+    background: blueviolet;
+  }
   
   .square:focus {
     outline: none;
@@ -49,3 +53,6 @@ body {
     margin-left: 20px;
   }
   
+.active-list-item {
+  background-color: aqua;
+}
