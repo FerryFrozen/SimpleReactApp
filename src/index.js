@@ -107,7 +107,7 @@ function Square(props) {
         if (winner) {
             status = `Выиграли ${winner.sign=="X" ? "крестики" : "нолики"}!`;
         } else {
-            status = 'Следующими ходят ' + (this.state.isXNext ? 'крестики' : 'нолики');
+            status = `${this.state.stepNumber!=9 ? 'Следующими ходят ' + (this.state.isXNext ? 'крестики' : 'нолики') : "Ничья!"}`;
         }
       return (
         <div className="game">
@@ -141,7 +141,6 @@ function Square(props) {
     for (let i = 0; i < lines.length; i++) {
       const [a, b, c] = lines[i];
       if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-        console.log(squares[a]);
         return {
           sign: squares[a],
           line: [a, b, c]
