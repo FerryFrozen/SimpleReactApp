@@ -47,27 +47,35 @@ function Square(props) {
     constructor(props) {
         super(props);
         this.state = {
-            history: [{
-                squares: Array(9).fill(null),
+            boardHistory: [{
+              squares: Array(9).fill(null)
             }],
+            stepsHistory: [],
             isXNext: true,
             stepNumber: 0
         }
     }
 
     handleClick(i) {
-        const history = this.state.history.slice(0, this.state.stepNumber+1);
-        const current = history[history.length - 1];
+        const boardHistory = this.state.boardHistory.slice(0, this.state.stepNumber+1);
+        const stepsHistory = this.state.stepsHistory.slice(0, this.state.stepNumber);
+        const current = boardHistory[boardHistory.length - 1];
         const squares = current.squares.slice();
         if (calculateWinner(squares) || squares[i]) {
           return;
         }
         squares[i] = this.state.isXNext ? 'X' : 'O';
         this.setState({
-          history: history.concat([{
+          boardHistory: boardHistory.concat([{
             squares: squares,
           }]),
-          stepNumber:history.length,
+          stepsHistory: stepsHistory.concat([{
+            step: {
+              xPos: i%3+1,
+              yPos: Math.floor(i/3)+1
+            }
+          }]),
+          stepNumber:boardHistory.length,
           isXNext: !this.state.isXNext
         });
     }
@@ -80,13 +88,16 @@ function Square(props) {
     }
 
     render() {
-        const history = this.state.history;
-        const current = history[this.state.stepNumber];
+        const boardHistory = this.state.boardHistory;
+        const current = boardHistory[this.state.stepNumber];
         const winner = calculateWinner(current.squares);
 
-        const moves = history.map((step,move) => {
+        const moves = boardHistory.map((step,move) => {
+            let previousMove = this.state.stepsHistory[move-1];
             const desc = move ?
-                `Перейти к ходу #${move}` :
+                `Перейти к ходу #${move} ${
+                  previousMove ? "["+previousMove.step.xPos+","+previousMove.step.yPos+"]" : ""
+                }` :
                 "Начало игры";
             return (
                 <li key={move}> 
@@ -97,9 +108,9 @@ function Square(props) {
 
         let status;
         if (winner) {
-            status = 'Выиграл ' + winner;
+            status = 'Выиграли ' + winner;
         } else {
-            status = 'Следующий ход: ' + (this.state.isXNext ? 'X' : 'O');
+            status = 'Следующими ходят ' + (this.state.isXNext ? 'крестики' : 'нолики');
         }
       return (
         <div className="game">
